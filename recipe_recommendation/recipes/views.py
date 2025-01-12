@@ -67,3 +67,22 @@ class LoginUserView(APIView):
             return Response({"token": token.key})
 
         return Response({"error": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)   
+
+
+class UserSavedRecipesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        recipes = request.user.recipes_saved.all()
+        serializer = RecipeSerializer(recipes, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        recipe_id = request.data.get('recipe_id')
+        recipe = Recipe.objects.filter(id=recipe_id).first()
+
+        if not recipe:
+            return Response({"error": "Recipe not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        request.user.recipes_saved.add(recipe)
+        return Response({"message": "Recipe saved successfully."})
