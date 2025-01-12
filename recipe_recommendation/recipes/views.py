@@ -97,3 +97,10 @@ class RecipeListView(generics.ListCreateAPIView):
 class RecipeDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+
+class SearchRecipeView(APIView):
+    def get(self, request):
+        query = request.query_params.get('q', '')
+        recipes = Recipe.objects.filter(title__icontains=query)
+        serializer = RecipeSerializer(recipes, many=True)
+        return Response(serializer.data)    
