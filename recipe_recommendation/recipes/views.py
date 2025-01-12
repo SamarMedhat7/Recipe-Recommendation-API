@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Recipe, Ingredient
-from .serializers import RecipeSerializer
+from .serializers import RecipeSerializer,IngredientSerializer
 from rapidfuzz import fuzz, process
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -111,3 +111,10 @@ class FilterRecipesByIngredientsView(APIView):
         recipes = Recipe.objects.filter(ingredients__name__in=ingredients).distinct()
         serializer = RecipeSerializer(recipes, many=True)
         return Response(serializer.data)    
+    
+
+
+# --- Ingredient Management Views ---
+class IngredientListView(generics.ListCreateAPIView):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer    
