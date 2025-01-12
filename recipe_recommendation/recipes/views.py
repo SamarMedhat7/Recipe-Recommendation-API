@@ -118,3 +118,12 @@ class FilterRecipesByIngredientsView(APIView):
 class IngredientListView(generics.ListCreateAPIView):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer    
+
+
+
+# --- Recommendation Views ---
+class TopRecipesView(APIView):
+    def get(self, request):
+        top_recipes = Recipe.objects.order_by('-rating')[:10]
+        serializer = RecipeSerializer(top_recipes, many=True)
+        return Response(serializer.data)    
