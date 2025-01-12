@@ -56,4 +56,14 @@ class RegisterUserView(APIView):
         token = Token.objects.create(user=user)
         return Response({"message": "User registered successfully.", "token": token.key})
     
-   
+class LoginUserView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = User.objects.filter(username=username).first()
+        if user and user.check_password(password):
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({"token": token.key})
+
+        return Response({"error": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)   
