@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RecipeListView, RecipeRecommendationView ,RegisterUserView, LoginUserView,UserSavedRecipesView,RecipeDetailView,SearchRecipeView,FilterRecipesByIngredientsView,IngredientListView,TopRecipesView
+from .views import RecipeListView, RecipeRecommendationView ,RegisterUserView, LoginUserView,UserSavedRecipesView,RecipeDetailView,SearchRecipeView,FilterRecipesByIngredientsView,IngredientListView,TopRecipesView,RecipeFeedbackView
 
 urlpatterns = [
     path('recommend/', RecipeRecommendationView.as_view(), name='recipe-recommend'),
@@ -15,8 +15,10 @@ urlpatterns = [
 
     path('ingredients/', IngredientListView.as_view(), name='ingredient-list'),
 
-
     path('recipes/top/', TopRecipesView.as_view(), name='top-recipes'),
+
+    path('recipes/<int:pk>/feedback/', RecipeFeedbackView.as_view(), name='recipe-feedback'),
+
 
 
 

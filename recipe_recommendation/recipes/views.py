@@ -127,3 +127,20 @@ class TopRecipesView(APIView):
         top_recipes = Recipe.objects.order_by('-rating')[:10]
         serializer = RecipeSerializer(top_recipes, many=True)
         return Response(serializer.data)    
+
+
+
+# --- Feedback Views ---
+class RecipeFeedbackView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        recipe = Recipe.objects.filter(id=pk).first()
+        if not recipe:
+            return Response({"error": "Recipe not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        rating = request.data.get('rating')
+        comment = request.data.get('comment')
+
+        recipe.feedback.create(user=request.user, rating=rating, comment=comment)
+        return Response({"message": "Feedback added successfully."})
