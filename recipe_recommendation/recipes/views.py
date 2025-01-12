@@ -8,11 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 
-class RecipeListView(APIView):
-    def get(self, request):
-        recipes = Recipe.objects.all()
-        serializer = RecipeSerializer(recipes, many=True)
-        return Response(serializer.data)
+     
 
 class RecipeRecommendationView(APIView):
     def post(self, request):
@@ -86,3 +82,13 @@ class UserSavedRecipesView(APIView):
 
         request.user.recipes_saved.add(recipe)
         return Response({"message": "Recipe saved successfully."})
+    
+
+
+
+
+
+# --- Recipe Management Views ---
+class RecipeListView(generics.ListCreateAPIView):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer    
