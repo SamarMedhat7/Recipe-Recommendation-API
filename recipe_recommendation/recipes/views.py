@@ -104,3 +104,10 @@ class SearchRecipeView(APIView):
         recipes = Recipe.objects.filter(title__icontains=query)
         serializer = RecipeSerializer(recipes, many=True)
         return Response(serializer.data)    
+    
+class FilterRecipesByIngredientsView(APIView):
+    def get(self, request):
+        ingredients = request.query_params.get('ingredients', '').split(',')
+        recipes = Recipe.objects.filter(ingredients__name__in=ingredients).distinct()
+        serializer = RecipeSerializer(recipes, many=True)
+        return Response(serializer.data)    
