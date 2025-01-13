@@ -8,6 +8,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
+
 
 
      
@@ -169,7 +171,10 @@ class IngredientListView(generics.ListCreateAPIView):
 # --- Recommendation Views ---
 class TopRecipesView(APIView):
     def get(self, request):
-        top_recipes = Recipe.objects.order_by('-rating')[:10]
+        top_recipes =  Recipe.objects.annotate(
+            average_rating=Avg('feedback__rating')
+        ).order_by('-average_rating')[:10] 
+        #Recipe.objects.order_by('-rating')[:10]
         serializer = RecipeSerializer(top_recipes, many=True)
         return Response(serializer.data)    
 
