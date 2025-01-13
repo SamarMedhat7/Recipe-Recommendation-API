@@ -1,12 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Recipe, Ingredient,UserProfile
-from .serializers import RecipeSerializer,IngredientSerializer,SaveRecipeSerializer
+from .serializers import RecipeSerializer,IngredientSerializer,SaveRecipeSerializer,FeedbackSerializer
 from rapidfuzz import fuzz, process
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+
 
      
 
@@ -178,12 +180,13 @@ class RecipeFeedbackView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        recipe = Recipe.objects.filter(id=pk).first()
-        if not recipe:
-            return Response({"error": "Recipe not found."}, status=status.HTTP_404_NOT_FOUND)
+        recipe = get_object_or_404(Recipe, id=pk)
 
-        rating = request.data.get('rating')
-        comment = request.data.get('comment')
+        # Validate with serializer
+        serializer = FeedbackSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        recipe.feedback.create(user=request.user, rating=rating, comment=comment)
+        # Save feedback
+        recipe.feedback.create(user=request.user, **serializer.validated_data)
         return Response({"message": "Feedback added successfully."})
