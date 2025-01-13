@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Recipe, Ingredient
-from .serializers import RecipeSerializer,IngredientSerializer
+from .models import Recipe, Ingredient,UserProfile
+from .serializers import RecipeSerializer,IngredientSerializer,SaveRecipeSerializer
 from rapidfuzz import fuzz, process
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -113,6 +113,49 @@ class FilterRecipesByIngredientsView(APIView):
         return Response(serializer.data)    
     
 
+class SaveRecipeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = SaveRecipeSerializer(data=request.data)
+        if serializer.is_valid():
+            recipe_id = serializer.validated_data['recipe_id']
+            recipe = Recipe.objects.get(id=recipe_id)
+
+            # Get the user's profile
+            user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+            # Add the recipe to favorites
+            user_profile.saved_recipes.add(recipe)
+
+            return Response({"message": "Recipe saved to favorites."}, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        serializer = SaveRecipeSerializer(data=request.data)
+        if serializer.is_valid():
+            recipe_id = serializer.validated_data['recipe_id']
+            recipe = Recipe.objects.get(id=recipe_id)
+
+            # Get the user's profile
+            user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+            # Remove the recipe from favorites
+            user_profile.saved_recipes.remove(recipe)
+
+            return Response({"message": "Recipe removed from favorites."}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class ListSavedRecipesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        saved_recipes = user_profile.saved_recipes.all()
+        serializer = RecipeSerializer(saved_recipes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)    
 
 # --- Ingredient Management Views ---
 class IngredientListView(generics.ListCreateAPIView):

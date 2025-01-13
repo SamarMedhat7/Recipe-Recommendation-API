@@ -11,4 +11,12 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['id', 'title', 'ingredients', 'instructions']
+        fields = ['id', 'title', 'description', 'ingredients', 'steps']
+
+class SaveRecipeSerializer(serializers.Serializer):
+    recipe_id = serializers.IntegerField()
+
+    def validate_recipe_id(self, value):
+        if not Recipe.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Recipe does not exist.")
+        return value
