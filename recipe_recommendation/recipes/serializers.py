@@ -11,7 +11,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['id', 'title', 'description', 'ingredients', 'steps']
+        fields = ['id', 'title', 'ingredients','description', 'steps']
 
 class SaveRecipeSerializer(serializers.Serializer):
     recipe_id = serializers.IntegerField()
@@ -20,3 +20,7 @@ class SaveRecipeSerializer(serializers.Serializer):
         if not Recipe.objects.filter(id=value).exists():
             raise serializers.ValidationError("Recipe does not exist.")
         return value
+    
+class FeedbackSerializer(serializers.Serializer):
+    rating = serializers.IntegerField(min_value=1, max_value=5)
+    comment = serializers.CharField(required=False, allow_blank=True)

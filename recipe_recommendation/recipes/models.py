@@ -23,3 +23,12 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     saved_recipes = models.ManyToManyField(Recipe, related_name="saved_by")    
 
+class RecipeFeedback(models.Model):
+    recipe = models.ForeignKey(Recipe, related_name='feedback', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField()
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('recipe', 'user')  # Prevent duplicate feedback
